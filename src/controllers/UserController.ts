@@ -8,30 +8,47 @@ export default class UserController {
     try {
       const users = await db.select('*').table('users');
 
-      return response.status(200).json(users);
+      return response.status(200).json({
+        error: false,
+        data: users,
+      });
     } catch (error) {
       console.log(`Error ->> ${error.message ?? error}`);
 
       return response.status(500).json({
-        error: 'Internal server error',
+        error: true,
+        data: {
+          message: 'Internal server error',
+        },
       });
     }
   }
 
   static async get(request: Request, response: Response): Promise<Response> {
     try {
-      const id = request.param('id');
+      const { id } = request.params;
 
       const user = await db.first('*').table('users').where({ id });
 
       return user
-        ? response.status(200).json(user)
-        : response.status(404).json({ error: 'User not found' });
+        ? response.status(200).json({
+            error: false,
+            data: user,
+          })
+        : response.status(404).json({
+            error: true,
+            data: {
+              message: 'User not found',
+            },
+          });
     } catch (error) {
       console.log(`Error ->> ${error.message ?? error}`);
 
       return response.status(500).json({
-        error: 'Internal server error',
+        error: true,
+        data: {
+          message: 'Internal server error',
+        },
       });
     }
   }
@@ -48,7 +65,11 @@ export default class UserController {
 
       if (emailInUse) {
         return response.status(400).json({
-          error: `Email ${user.email} already used`,
+          error: true,
+          data: {
+            message: `Email already used`,
+            email: user.email,
+          },
         });
       }
 
@@ -59,32 +80,49 @@ export default class UserController {
 
       if (usernameInUse) {
         return response.status(400).json({
-          error: `Username ${user.username} already used`,
+          error: true,
+          data: {
+            message: `Username already used`,
+            username: user.username,
+          },
         });
       }
 
       await db.insert({ ...user }).table('users');
 
-      return response
-        .status(201)
-        .json({ message: `User ${id} successfully added` });
+      return response.status(201).json({
+        error: false,
+        data: {
+          message: `User successfully added`,
+          id,
+        },
+      });
     } catch (error) {
       console.log(`Error ->> ${error.message ?? error}`);
 
       return response.status(500).json({
-        error: 'Internal server error',
+        error: true,
+        data: {
+          message: 'Internal server error',
+        },
       });
     }
   }
 
   static async update(request: Request, response: Response): Promise<Response> {
     try {
-      const id = request.param('id');
+      const { id } = request.params;
       const { name, username, email } = request.body;
 
       const userFromDb = await db.first('*').table('users').where({ id });
       if (!userFromDb) {
-        return response.status(404).json({ message: `User ${id} not found` });
+        return response.status(404).json({
+          error: true,
+          data: {
+            message: `User not found`,
+            id,
+          },
+        });
       }
 
       const emailInUse = await db
@@ -95,7 +133,11 @@ export default class UserController {
 
       if (emailInUse) {
         return response.status(400).json({
-          error: `Email ${email} already used`,
+          error: true,
+          data: {
+            message: `Email already used`,
+            email,
+          },
         });
       }
 
@@ -107,43 +149,65 @@ export default class UserController {
 
       if (usernameInUse) {
         return response.status(400).json({
-          error: `Username ${username} already used`,
+          error: true,
+          data: {
+            message: `Username already used`,
+            username,
+          },
         });
       }
 
       await db.update({ name, username, email }).table('users').where({ id });
 
-      return response
-        .status(201)
-        .json({ message: `User ${id} successfully updated` });
+      return response.status(201).json({
+        error: false,
+        data: {
+          message: `User successfully updated`,
+          id,
+        },
+      });
     } catch (error) {
       console.log(`Error ->> ${error.message ?? error}`);
 
       return response.status(500).json({
-        error: 'Internal server error',
+        error: true,
+        data: {
+          message: 'Internal server error',
+        },
       });
     }
   }
 
   static async delete(request: Request, response: Response): Promise<Response> {
     try {
-      const id = request.param('id');
+      const { id } = request.params;
 
       const userFromDb = await db.first('*').table('users').where({ id });
       if (!userFromDb) {
-        return response.status(404).json({ message: `User ${id} not found` });
+        return response.status(404).json({
+          error: true,
+          data: {
+            message: `User ${id} not found`,
+          },
+        });
       }
 
       await db.delete().table('users').where({ id });
 
-      return response
-        .status(201)
-        .json({ message: `User ${id} successfully deleted` });
+      return response.status(200).json({
+        error: false,
+        data: {
+          message: `User ${id} successfully deleted`,
+        },
+      });
     } catch (error) {
       console.log(`Error ->> ${error.message ?? error}`);
 
       return response.status(500).json({
-        error: 'Internal server error',
+        error: true,
+        data: {
+          message: 'Internal server error',
+        },
       });
     }
   }

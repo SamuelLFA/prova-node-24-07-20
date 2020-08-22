@@ -1,9 +1,14 @@
 import knex from 'knex';
-import settings from '../config/settings';
+import configuration from '../../knexfile';
 
-const db = knex({
-  client: 'pg',
-  connection: settings.pgConnectionString,
-});
+const config = () => {
+  if (process.env.NODE_ENV === 'test') {
+    return configuration.test;
+  }
+  if (process.env.NODE_ENV === 'development') {
+    return configuration.development;
+  }
+  return configuration.production;
+};
 
-export default db;
+export default knex(config());
