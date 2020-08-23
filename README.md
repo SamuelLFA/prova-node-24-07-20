@@ -1,27 +1,37 @@
-# Prova de Backend
+# Back-end test
 
-O projeto inicial é um cadastro de usuários em memória muito simples e sem utilizar nenhuma lib. Apesar de o código estar em qualidade baixa, o projeto está funcional. O que se espera é que o candidato melhore este código de uma maneira que possamos avaliar suas habilidades e competências.
+This project was developed using Node.js and TypeScript in order to demonstrate the ability to develop a REST API.
 
-### Rodando o projeto
+## Requisites
+* [NodeJs]
+* [PostgreSQL]
 
-`node src/index.js`
+## Running the project
 
-## O que será avaliado?
+* Clone the repository using:
+```
+git clone git@github.com:SamuelLFA/prova-node-24-07-20.git
+```
+* Create a file named `.env` on the root of the project. Using as model the content of `.env.example`.
 
-A idéia é deixar o candidato bem livre pra reimplementar o código da maneira que mais lhe for conveniente e que mais demonstre suas habilidades. Está liberado o uso de libs de terceiros, bancos de dados, autenticação, etc.
+* In order to run the tests, create a PostgreSQL database and use the connection string to `.env`. With the connection string specified, you can run the tests with the command `npm test`.
 
-1. Qualidade de código
-2. Uso de patterns adequados
-3. Estratégia de validação de dados
-4. Testes unitários
+* In order to run the development environment, create a PostgreSQL database and use the connection string to `.env`. Then, you need to run the migration with the command `npm run knex:migrate` and the seeds with `npm run knex:seed`. Now you are ready to make requests to the application running `npm run start`.
 
-## O que é desejado (não obrigatório) na entrega?
+* Import the [collection] from [Postman]. Remember to login with the default user with the request body below:
+```
+{
+    "username": "admin"
+}
+```
+P.S: This user is inserted into the database with the seed.
 
-1. Adição de Banco de dados
-2. Utilização de docker
-3. Autenticação
-4. Utilização de typescript
+## Contact
+samuellfa3@gmail.com
 
-## Como será feita a entrega?
+### Thank you and best regards 👨‍💻
 
-Deverá ser realizado um fork deste repositório e no formulário enviado você deverá responder com o link deste fork.
+[NodeJs]: <https://nodejs.org/en/>
+[PostgreSQL]: <https://www.postgresql.org/>
+[Postman]: <https://www.postman.com/>
+[collection]: <https://www.getpostman.com/collections/eb1f7ca9292728deb328>
