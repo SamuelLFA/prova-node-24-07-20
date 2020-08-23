@@ -12,6 +12,7 @@ const getEnvConnection = () => {
 const settings = {
   port: env.get('PORT').default('3000').asPortNumber(),
   pgConnectionString: env.get(getEnvConnection()).required().asString(),
+  secret: env.get('SECRET').required().asString(),
 };
 
 export default settings;

@@ -4,18 +4,30 @@ import server from '../../server';
 import connection from '../../database/connection';
 import config from '../../../knexfile';
 
-const createNewUser = async (): Promise<Response> => {
-  return request(server).post('/users').send({
-    name: faker.name.firstName(),
-    username: faker.internet.userName(),
-    email: faker.internet.email(),
-  });
+async function login() {
+  return (
+    await request(server).post('/login').send({
+      username: 'admin',
+    })
+  ).body.data.token;
+}
+
+const createNewUser = async (token: string): Promise<Response> => {
+  return request(server)
+    .post('/users')
+    .send({
+      name: faker.name.firstName(),
+      username: faker.internet.userName(),
+      email: faker.internet.email(),
+    })
+    .set({ Authorization: token });
 };
 
 describe('USERS', () => {
   beforeEach(async () => {
     await connection.migrate.rollback(config.test.migrations);
     await connection.migrate.latest(config.test.migrations);
+    await connection.seed.run(config.test.seeds);
   });
 
   afterEach(() => {
@@ -27,43 +39,65 @@ describe('USERS', () => {
   });
 
   it('Should be able to create a new user', async () => {
-    const response = await createNewUser();
+    const token = await login();
+    const response = await createNewUser(token);
+
     expect(response.status).toEqual(201);
     expect(response.body.error).toBeFalsy();
     expect(typeof response.body.data.id).toBe('string');
   });
 
   it('Should be able to list all users', async () => {
-    await createNewUser();
+    const token = await login();
+    await createNewUser(token);
 
-    const response = await request(server).get('/users').send();
+    const response = await request(server)
+      .get('/users')
+      .send()
+      .set({ Authorization: token });
+
     expect(response.status).toEqual(200);
     expect(response.body.error).toBeFalsy();
     expect(response.body.data).toBeInstanceOf(Array);
   });
 
   it('Should be able to show a user', async () => {
-    const { id } = (await createNewUser()).body.data;
+    const token = await login();
+    const { id } = (await createNewUser(token)).body.data;
 
-    const response = await request(server).get(`/users/${id}`).send();
+    const response = await request(server)
+      .get(`/users/${id}`)
+      .send()
+      .set({ Authorization: token });
+
     expect(response.status).toEqual(200);
     expect(response.body.error).toBeFalsy();
     expect(response.body.data).toBeInstanceOf(Object);
   });
 
   it('Should be able to update a user', async () => {
-    const { id } = (await createNewUser()).body.data;
+    const token = await login();
+    const { id } = (await createNewUser(token)).body.data;
 
-    const response = await request(server).get(`/users/${id}`).send();
+    const response = await request(server)
+      .get(`/users/${id}`)
+      .send()
+      .set({ Authorization: token });
+
     expect(response.status).toEqual(200);
     expect(response.body.error).toBeFalsy();
     expect(response.body.data).toBeInstanceOf(Object);
   });
 
   it('Should be able to delete a user', async () => {
-    const { id } = (await createNewUser()).body.data;
+    const token = await login();
+    const { id } = (await createNewUser(token)).body.data;
 
-    const response = await request(server).delete(`/users/${id}`).send();
+    const response = await request(server)
+      .delete(`/users/${id}`)
+      .send()
+      .set({ Authorization: token });
+
     expect(response.status).toEqual(200);
     expect(response.body.error).toBeFalsy();
   });
